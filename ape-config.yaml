@@ -1,3 +1,17 @@
 name: yfi-buyer
+plugins:
+  - vyper
+  - solidity
+  - tokens
+  - hardhat
+dependencies:
+  - name: DappToolsERC20
+    github: dapphub/erc20
+    branch: master
+    contracts_folder: src
 ethereum:
-  default_network: mainnet
+  default_network: mainnet-fork
+  mainnet_fork:
+    default_provider: hardhat
+hardhat:
+  port: auto
