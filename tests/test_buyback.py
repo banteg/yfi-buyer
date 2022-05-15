@@ -4,6 +4,7 @@ from eth_utils import from_wei
 def test_buyback_with_dai(buyer, yfi, dai, bunny, milky, treasury, rune, brk_a, waifu):
     buyer.set_treasury(treasury, sender=milky)
     dai.transfer(buyer, brk_a, sender=rune)
+    print('max_amount', from_wei(buyer.max_amount(), 'ether'))
     yfi.approve(buyer, waifu, sender=bunny)
     receipt = buyer.buy_dai(waifu, sender=bunny)
     log = next(buyer.Buyback.from_receipt(receipt))

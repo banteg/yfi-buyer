@@ -69,9 +69,14 @@ def buy_dai(yfi_amount: uint256):
 @external
 def price() -> uint256:
     oracle: ChainlinkRound = Chainlink(YFI_USD).latestRoundData()
-    assert oracle.updatedAt + STALE_AFTER > block.timestamp  # dev: stale oracle
-
     return convert(oracle.answer, uint256) * 10 ** 10
+
+
+@view
+@external
+def max_amount() -> uint256:
+    oracle: ChainlinkRound = Chainlink(YFI_USD).latestRoundData()
+    return ERC20(DAI).balanceOf(self) / convert(oracle.answer, uint256) * 10 ** 8
 
 
 @external
