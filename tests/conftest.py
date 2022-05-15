@@ -19,6 +19,11 @@ def rune(accounts):
 
 
 @pytest.fixture
+def treasury(accounts):
+    return accounts[3]
+
+
+@pytest.fixture
 def buyer(project, milky):
     return project.YfiBuyer.deploy(sender=milky)
 
