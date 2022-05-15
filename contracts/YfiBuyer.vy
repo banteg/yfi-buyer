@@ -60,7 +60,7 @@ def buy_dai(yfi_amount: uint256):
     dai_amount: uint256 = convert(oracle.answer, uint256) * yfi_amount / 10 ** 8
 
     assert ERC20(YFI).transferFrom(msg.sender, self.treasury, yfi_amount)  # dev: no allowance
-    assert ERC20(DAI).transferFrom(self, msg.sender, dai_amount)  # dev: not enough dai
+    assert ERC20(DAI).transfer(msg.sender, dai_amount)  # dev: not enough dai
 
     log Buyback(msg.sender, yfi_amount, dai_amount)
 
