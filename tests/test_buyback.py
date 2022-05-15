@@ -10,6 +10,7 @@ def test_buyback_with_dai(buyer, yfi, dai, bunny, milky, treasury, rune, brk_a, 
     print(log.event_arguments)
     print(log.dai / log.yfi, 'YFI/DAI')
 
+    assert log.buyer == bunny
     assert log.yfi == waifu
     assert yfi.balanceOf(treasury) == waifu
     assert dai.balanceOf(bunny) == log.dai

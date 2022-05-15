@@ -29,6 +29,7 @@ interface Chainlink:
     def latestRoundData() -> ChainlinkRound: view
 
 event Buyback:
+    buyer: indexed(address)
     yfi: uint256
     dai: uint256
 
@@ -61,7 +62,7 @@ def buy_dai(yfi_amount: uint256):
     assert ERC20(YFI).transferFrom(msg.sender, self.treasury, yfi_amount)  # dev: no allowance
     assert ERC20(DAI).transferFrom(self, msg.sender, dai_amount)  # dev: not enough dai
 
-    log Buyback(yfi_amount, dai_amount)
+    log Buyback(msg.sender, yfi_amount, dai_amount)
 
 
 @view
