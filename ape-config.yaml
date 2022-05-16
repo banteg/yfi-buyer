@@ -10,3 +10,8 @@ ethereum:
     default_provider: hardhat
 hardhat:
   port: auto
+deployments:
+  ethereum:
+    mainnet:
+      - contract_type: YfiBuyer
+        address: 0xdf5e4E54d212F7a01cf94B3986f40933fcfF589F
