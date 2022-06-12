@@ -3,15 +3,10 @@ plugins:
   - vyper
   - solidity
   - tokens
-  - hardhat
+  - foundry
 ethereum:
   default_network: mainnet-fork
   mainnet_fork:
-    default_provider: hardhat
-hardhat:
+    default_provider: foundry
+foundry:
   port: auto
-deployments:
-  ethereum:
-    mainnet:
-      - contract_type: YfiBuyer
-        address: 0xdf5e4E54d212F7a01cf94B3986f40933fcfF589F

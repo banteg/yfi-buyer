@@ -1,6 +1,25 @@
+from contextlib import contextmanager
 import pytest
-from ape import convert
+from ape import convert, chain
 from ape_tokens import tokens
+from eth_utils import encode_hex
+
+
+@pytest.fixture
+def impersonate_contract(chain):
+    """
+    Allows to impersonate a contract on Anvil and bypass "EVM error RejectCallerWithCode".
+    """
+    make_request = chain.provider.web3.manager.request_blocking
+
+    @contextmanager
+    def wrapper(address):
+        code = encode_hex(chain.provider.get_code(address))
+        make_request("anvil_setCode", [address, ""])
+        yield
+        make_request("anvil_setCode", [address, code])
+
+    return wrapper
 
 
 @pytest.fixture
@@ -39,10 +58,11 @@ def waifu():
 
 
 @pytest.fixture
-def yfi(project, bunny, accounts, waifu):
+def yfi(project, bunny, accounts, waifu, impersonate_contract):
     token = project.ERC20.at(tokens["YFI"].address)
     whale = "0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52"
-    token.transfer(bunny, waifu, sender=accounts[whale])
+    with impersonate_contract(whale):
+        token.transfer(bunny, waifu, sender=accounts[whale])
     return token
 
 
