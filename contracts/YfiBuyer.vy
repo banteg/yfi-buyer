@@ -62,12 +62,6 @@ def __init__():
     log UpdateTreasury(msg.sender)
 
 
-@internal
-def release_stream():
-    if self.rate != 0:
-        LlamaPay(LLAMAPAY).withdraw(self.admin, self, self.rate)
-
-
 @view
 @internal
 def withdrawable() -> uint256:
@@ -81,7 +75,8 @@ def buy_dai(yfi_amount: uint256):
     oracle: ChainlinkRound = Chainlink(YFI_USD).latestRoundData()
     assert oracle.updatedAt + STALE_AFTER > block.timestamp  # dev: stale oracle
 
-    self.release_stream()
+    if self.rate != 0:
+        LlamaPay(LLAMAPAY).withdraw(self.admin, self, self.rate)
 
     dai_amount: uint256 = convert(oracle.answer, uint256) * yfi_amount / 10 ** 8
 
