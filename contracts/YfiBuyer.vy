@@ -15,7 +15,6 @@ YFI_USD: constant(address) = 0xA027702dbb89fbd58938e4324ac03B58d812b0E1
 STALE_AFTER: constant(uint256) = 3600
 
 admin: public(address)
-pending_admin: public(address)
 treasury: public(address)
 
 struct ChainlinkRound:
@@ -32,9 +31,6 @@ event Buyback:
     buyer: indexed(address)
     yfi: uint256
     dai: uint256
-
-event ProposeAdmin:
-    pending_admin: indexed(address)
 
 event UpdateAdmin:
     admin: indexed(address)
@@ -91,20 +87,11 @@ def sweep(token: address, amount: uint256 = MAX_UINT256):
 
 
 @external
-def propose_admin(proposed_admin: address):
+def set_admin(proposed_admin: address):
     assert msg.sender == self.admin
-    self.pending_admin = proposed_admin
+    self.admin = proposed_admin
 
-    log ProposeAdmin(proposed_admin)
-
-
-@external
-def accept_admin():
-    assert msg.sender == self.pending_admin
-    self.admin = msg.sender
-    self.pending_admin = ZERO_ADDRESS
-
-    log UpdateAdmin(msg.sender)
+    log UpdateAdmin(proposed_admin)
 
 
 @external
