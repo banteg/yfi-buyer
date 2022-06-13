@@ -1,4 +1,5 @@
 import ape
+import pytest
 
 
 def test_buyback_with_dai(buyer, yfi, dai, bunny, milky, treasury):
@@ -17,6 +18,7 @@ def test_buyback_with_dai(buyer, yfi, dai, bunny, milky, treasury):
     assert dai.balanceOf(bunny) == log.dai
 
 
+@pytest.mark.skip(reason='pending timestamp seems to break function isolation')
 def test_buyback_stale_oracle(buyer, yfi, dai, bunny, milky, chain):
     dai.transfer(buyer, "100_000 DAI", sender=milky)
     yfi.approve(buyer, yfi.balanceOf(bunny), sender=bunny)
@@ -67,11 +69,19 @@ def test_set_treasury(buyer, bunny, milky, treasury):
     assert buyer.treasury() == milky
 
 
-def test_buyback_with_stream(buyer, bunny, dai, yfi, chain, treasury, stream):
+def test_buyback_with_stream(buyer, bunny, dai, yfi, chain, treasury, llamapay, milky):
     yfi.approve(buyer, yfi.balanceOf(bunny), sender=bunny)
+    rate = int(100_000 / 86_400 * 10**20)
+
+    dai.approve(llamapay, "100_000 DAI", sender=milky)
+    llamapay.deposit("100_000 DAI", sender=milky)
+    
+    # set rate is mandatory to discover a stream
+    llamapay.createStream(buyer, rate, sender=milky)
+    buyer.set_rate(rate, sender=milky)
 
     # we can't skip too far because of the oracle staleness check
-    chain.pending_timestamp = chain.pending_timestamp + 600
+    chain.pending_timestamp += 60
     receipt = buyer.buy_dai("1 gwei", sender=bunny)
 
     log = next(buyer.Buyback.from_receipt(receipt))

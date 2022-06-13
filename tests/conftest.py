@@ -5,7 +5,7 @@ from ape_tokens import tokens
 from eth_utils import encode_hex
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def impersonate_contract(chain):
     """
     Allows to impersonate a contract on Anvil and bypass "EVM error RejectCallerWithCode".
@@ -22,22 +22,22 @@ def impersonate_contract(chain):
     return wrapper
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def milky(accounts):
     return accounts[0]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def bunny(accounts):
     return accounts[1]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def treasury(accounts):
     return accounts[2]
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def buyer(project, milky, treasury):
     """
     YfiBuyer(admin=milky, treasury=treasury, rate=0)
@@ -47,7 +47,7 @@ def buyer(project, milky, treasury):
     return contract
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def yfi(project, bunny, accounts, impersonate_contract):
     """
     YFI token with balanceOf(bunny) = 10 YFI
@@ -59,7 +59,7 @@ def yfi(project, bunny, accounts, impersonate_contract):
     return token
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def dai(project, milky, accounts):
     """
     DAI token with balanceOf(milky) = 1m DAI
@@ -70,26 +70,7 @@ def dai(project, milky, accounts):
     return token
 
 
-@pytest.fixture
-def llamapay(chain, milky, dai):
-    """
-    LlamaPay with 100k deposited from milky
-    """
+@pytest.fixture(scope='session')
+def llamapay(chain):
     contract = chain.contracts.instance_at("0x60c7B0c5B3a4Dc8C690b074727a17fF7aA287Ff2")
-    dai.approve(contract, "100_000 DAI", sender=milky)
-    contract.deposit("100_000 DAI", sender=milky)
     return contract
-
-
-@pytest.fixture
-def rate():
-    """
-    10k DAI/day
-    """
-    return int(10_000 / 86_400 * 10**20)
-
-
-@pytest.fixture
-def stream(llamapay, milky, buyer, rate):
-    llamapay.createStream(buyer, rate, sender=milky)
-    buyer.set_rate(rate, sender=milky)

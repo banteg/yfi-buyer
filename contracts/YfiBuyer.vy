@@ -4,7 +4,10 @@
 @license MIT
 @author banteg
 @notice
-    This contract buys YFI for DAI at the current Chainlink price.
+    Buy YFI for DAI at the current Chainlink price.
+
+    New in v0.2.0
+    - Accept and release a LlamaPay stream on buy
 """
 from vyper.interfaces import ERC20
 
