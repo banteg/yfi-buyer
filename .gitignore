@@ -1,2 +1,5 @@
 .build
-node_modules
+.hypothesis
+.pytest_cache
+.vscode
+.python-version
