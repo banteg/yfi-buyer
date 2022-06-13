@@ -110,12 +110,11 @@ def max_amount() -> uint256:
 @external
 def sweep(token: address, amount: uint256 = MAX_UINT256):
     assert msg.sender == self.admin
-    
     value: uint256 = amount
     if value == MAX_UINT256:
         value = ERC20(token).balanceOf(self)
     
-    ERC20(token).transfer(self.admin, value)
+    assert ERC20(token).transfer(self.admin, value)
 
 
 @external

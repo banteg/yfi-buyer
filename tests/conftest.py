@@ -1,6 +1,6 @@
 from contextlib import contextmanager
+
 import pytest
-from ape import convert, chain
 from ape_tokens import tokens
 from eth_utils import encode_hex
 
@@ -33,42 +33,63 @@ def bunny(accounts):
 
 
 @pytest.fixture
-def rune(accounts):
+def treasury(accounts):
     return accounts[2]
 
 
 @pytest.fixture
-def treasury(accounts):
-    return accounts[3]
+def buyer(project, milky, treasury):
+    """
+    YfiBuyer(admin=milky, treasury=treasury, rate=0)
+    """
+    contract = project.YfiBuyer.deploy(sender=milky)
+    contract.set_treasury(treasury, sender=milky)
+    return contract
 
 
 @pytest.fixture
-def buyer(project, milky):
-    return project.YfiBuyer.deploy(sender=milky)
-
-
-@pytest.fixture
-def brk_a():
-    return convert("465_000 DAI", int)
-
-
-@pytest.fixture
-def waifu():
-    return convert("1 YFI", int)
-
-
-@pytest.fixture
-def yfi(project, bunny, accounts, waifu, impersonate_contract):
+def yfi(project, bunny, accounts, impersonate_contract):
+    """
+    YFI token with balanceOf(bunny) = 10 YFI
+    """
     token = project.ERC20.at(tokens["YFI"].address)
     whale = "0xFEB4acf3df3cDEA7399794D0869ef76A6EfAff52"
     with impersonate_contract(whale):
-        token.transfer(bunny, waifu, sender=accounts[whale])
+        token.transfer(bunny, "10 YFI", sender=accounts[whale])
     return token
 
 
 @pytest.fixture
-def dai(project, rune, accounts, brk_a):
+def dai(project, milky, accounts):
+    """
+    DAI token with balanceOf(milky) = 1m DAI
+    """
     token = project.ERC20.at(tokens["DAI"].address)
     whale = "0x075e72a5eDf65F0A5f44699c7654C1a76941Ddc8"
-    token.transfer(rune, brk_a, sender=accounts[whale])
+    token.transfer(milky, "1_000_000 DAI", sender=accounts[whale])
     return token
+
+
+@pytest.fixture
+def llamapay(chain, milky, dai):
+    """
+    LlamaPay with 100k deposited from milky
+    """
+    contract = chain.contracts.instance_at("0x60c7B0c5B3a4Dc8C690b074727a17fF7aA287Ff2")
+    dai.approve(contract, "100_000 DAI", sender=milky)
+    contract.deposit("100_000 DAI", sender=milky)
+    return contract
+
+
+@pytest.fixture
+def rate():
+    """
+    10k DAI/day
+    """
+    return int(10_000 / 86_400 * 10**20)
+
+
+@pytest.fixture
+def stream(llamapay, milky, buyer, rate):
+    llamapay.createStream(buyer, rate, sender=milky)
+    buyer.set_rate(rate, sender=milky)
